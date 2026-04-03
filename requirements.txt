@@ -3,3 +3,4 @@ onnxruntime
 huggingface-hub
 pandas
 numpy
+gradio

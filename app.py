@@ -1,5 +1,26 @@
 import argparse
 import os
+import time
+
+nvidia_base = os.path.join(
+    os.path.dirname(__file__),
+    ".venv",
+    "Lib",
+    "site-packages",
+    "nvidia"
+)
+
+dll_dirs = [
+    os.path.join(nvidia_base, "cudnn", "bin"),
+    os.path.join(nvidia_base, "cublas", "bin"),
+    os.path.join(nvidia_base, "cuda_runtime", "bin"),
+]
+
+for d in dll_dirs:
+    if os.path.isdir(d):
+        os.add_dll_directory(d)
+        os.environ["PATH"] = d + os.pathsep + os.environ["PATH"]
+        print("Added DLL dir:", d)
 
 import gradio as gr
 import huggingface_hub
@@ -132,12 +153,15 @@ class Predictor:
         self.character_indexes = sep_tags[3]
 
         del self.model
-        model = rt.InferenceSession(model_path)
+        #model = rt.InferenceSession(model_path)
+        model = rt.InferenceSession(model_path, providers=["CUDAExecutionProvider", "CPUExecutionProvider"])
+        #model = rt.InferenceSession(model_path, providers=["CPUExecutionProvider"])
         _, height, width, _ = model.get_inputs()[0].shape
         self.model_target_size = height
 
         self.last_loaded_repo = model_repo
         self.model = model
+        print(model.get_providers())
 
     def prepare_image(self, image):
         target_size = self.model_target_size
@@ -182,6 +206,7 @@ class Predictor:
         self.load_model(model_repo)
 
         image = self.prepare_image(image)
+        start_time = time.time()
 
         input_name = self.model.get_inputs()[0].name
         label_name = self.model.get_outputs()[0].name
@@ -224,6 +249,8 @@ class Predictor:
             ", ".join(sorted_general_strings).replace("(", r"\(").replace(")", r"\)")
         )
 
+        print("")
+        print("--- %s seconds ---" % (time.time() - start_time))
         return sorted_general_strings, rating, character_res, general_res
 
 

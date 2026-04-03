@@ -154,7 +154,7 @@ class Predictor:
 
         del self.model
         #model = rt.InferenceSession(model_path)
-        model = rt.InferenceSession(model_path, providers=["CUDAExecutionProvider", "CPUExecutionProvider"])
+        model = rt.InferenceSession(model_path, providers=["CPUExecutionProvider"])
         #model = rt.InferenceSession(model_path, providers=["CPUExecutionProvider"])
         _, height, width, _ = model.get_inputs()[0].shape
         self.model_target_size = height
@@ -206,11 +206,14 @@ class Predictor:
         self.load_model(model_repo)
 
         image = self.prepare_image(image)
-        start_time = time.time()
 
         input_name = self.model.get_inputs()[0].name
         label_name = self.model.get_outputs()[0].name
+        
+        start_time = time.time()
         preds = self.model.run([label_name], {input_name: image})[0]
+        print("")
+        print("--- %s seconds ---" % (time.time() - start_time))
 
         labels = list(zip(self.tag_names, preds[0].astype(float)))
 
@@ -249,8 +252,6 @@ class Predictor:
             ", ".join(sorted_general_strings).replace("(", r"\(").replace(")", r"\)")
         )
 
-        print("")
-        print("--- %s seconds ---" % (time.time() - start_time))
         return sorted_general_strings, rating, character_res, general_res
 
 
@@ -372,7 +373,7 @@ def main():
         )
 
     demo.queue(max_size=10)
-    demo.launch()
+    demo.launch(server_name="0.0.0.0")
 
 
 if __name__ == "__main__":

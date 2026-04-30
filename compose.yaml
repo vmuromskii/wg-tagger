@@ -1,0 +1,14 @@
+services:
+  wg-tagger:
+    build: .
+    container_name: wg-tagger
+    environment:
+      HF_TOKEN: 1234
+      TRANSFORMERS_OFFLINE: 1
+      HF_HUB_OFFLINE: 1
+      TMPDIR: /app/tmp
+    ports:
+      - 7860:7860
+    volumes:
+      - ./models:/models
+    restart: unless-stopped

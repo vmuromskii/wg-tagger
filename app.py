@@ -21,6 +21,8 @@ for d in dll_dirs:
         os.add_dll_directory(d)
         os.environ["PATH"] = d + os.pathsep + os.environ["PATH"]
         print("Added DLL dir:", d)
+    else:
+        print(f"❌ Директория НЕ НАЙДЕНА: {d}")
 
 import gradio as gr
 import huggingface_hub
@@ -161,6 +163,7 @@ class Predictor:
 
         self.last_loaded_repo = model_repo
         self.model = model
+        print('get_providers:')
         print(model.get_providers())
 
     def prepare_image(self, image):
@@ -377,4 +380,5 @@ def main():
 
 
 if __name__ == "__main__":
+    print('get_available_providers:', rt.get_available_providers())
     main()

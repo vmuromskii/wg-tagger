@@ -3,4 +3,4 @@ onnxruntime
 huggingface-hub
 pandas
 numpy
-gradio
+gradio==5.46.1

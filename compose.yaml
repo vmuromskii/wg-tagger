@@ -2,6 +2,7 @@ services:
   wg-tagger:
     build: .
     container_name: wg-tagger
+    cpus: 4
     environment:
       HF_TOKEN: 1234
       TRANSFORMERS_OFFLINE: 1
